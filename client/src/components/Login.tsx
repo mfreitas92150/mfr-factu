@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Container, Form, Row, Col, Button } from "react-bootstrap";
-import API from "../../utils/API";
+import * as API from "../utils/API";
+import { useHistory } from "react-router-dom";
 
 export default function Login() {
+  const history = useHistory();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    setError(null);
+    setError("");
   }, [email, password]);
 
   const errorAlert = error ? <span>{error}</span> : null;
   if (API.isAuth()) {
-    window.location = "/";
+    history.push("/");
     return null;
   }
   return (
@@ -29,32 +30,17 @@ export default function Login() {
           <Col>{errorAlert}</Col>
         </Row>
         <Form
-          onSubmit={(e) => {
+          onSubmit={async (e: any) => {
             e.preventDefault();
-            axios
-              .post(
-                `http://localhost:8800/user/login`,
-                {
-                  email,
-                  password,
-                },
-                {
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                }
-              )
-              .then((response) => {
-                localStorage.setItem("token", response.data.token);
-                window.location = "/";
-              })
-              .catch((error) => {
-                console.info(error);
-                setError("Compte inconnu ou mot de passe erroné !");
-              });
+            try {
+              await API.login(email, password);
+            } catch (err) {
+              console.info(error);
+              setError("Compte inconnu ou mot de passe erroné !");
+            }
           }}
           onReset={() => {
-            window.location = "/signup";
+            history.push("/signup");
           }}
         >
           <Row>

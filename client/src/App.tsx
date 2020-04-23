@@ -1,10 +1,9 @@
 import React from "react";
 import { Route, Switch } from "react-router-dom";
-import Dashboard from "./components/Dashboard/Dashboard.js";
-import Login from "./components/Login/Login";
-import Logout from "./components/Logout/Logout";
-import Signup from "./components/Signup/Signup.js";
-import { PrivateRoute } from "./components/PrivateRoute.js";
+import Dashboard from "./components/Dashboard";
+import Login from "./components/Login";
+import Signup from "./components/Signup";
+import { PrivateRoute } from "./components/PrivateRoute";
 import "./App.css";
 
 export default function App() {
@@ -13,7 +12,6 @@ export default function App() {
       <div className="App-content">
         <Switch>
           <Route exact path="/login" component={Login} />
-          <Route exact path="/logout" component={Logout} />
           <Route exact path="/signup" component={Signup} />
           <PrivateRoute path="/" component={Dashboard} /> }
         </Switch>
