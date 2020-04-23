@@ -4,25 +4,28 @@ Outil de Facturation
 
 ## Fonctionnalités
 
-### Liste des factures
-* Paginable
-* Filtrable par : 
-  - année
+### Factures
+* Liste facures
+  - Filtrable
+  - Paginable
+  - Accès Facture PDF
+* Création 
   - client
-* Accès Facture PDF
-* Ajout facture manuel
+  - produit (manuel ou dans liste de produit)
+  - Pointer fichier PDF ou generation
+* Modification si pas valider et pdf generé
+* Consultation
+  - Détails de la facture
+  - Accès au PDF
 
-### Edition facture
-* Sélection d'un client
-* Sélection d'un produit
-* Quantité / Prix UNITAIRE HT
-* Génération PDF
-* Ajout entrée en base
+### Client
 
-### Listes client
-* Ajout de client (SIREN, SIRET, N.TVA, gestion produit)
-* Liste client
+### Produit
 
 ### Info perso
 * SIREN, SIRET, N.TVA
 * Adresse siège
+
+
+### MongoDB
+docker run -p 27017:27017 --name mfr-factu-mongo -d mongo --serviceExecutor adaptive

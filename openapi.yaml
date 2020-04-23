@@ -1,0 +1,66 @@
+openapi: 3.0.0
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/mfreitas92150/mfr-factu/1.0.0
+info:
+  description: This is a simple API
+  version: "1.0.0"
+  title: mfr-factu API
+  contact:
+    email: you@your-company.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: invoices
+    description: Gestion des facturations
+  - name: clients
+    description: Gestions des clients
+  - name: products
+    description: Gestions des produits
+  - name: account
+    description: Information du comptes
+paths:
+  /invoices:
+    get:
+      tags:
+        - invoices
+      summary: searches invoices
+      operationId: searchInvoices
+      description: |
+        By passing in the appropriate options, you can search for
+        available inventory in the system
+      parameters:
+        - in: query
+          name: startDate
+          description: Date de démarrage du filtre année. format (YYYYMM).
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: endDate
+          description: Date de fin du filtre année. format (YYYYMM).
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/InvoiceList'
+        '400':
+          description: bad input parameter
+  
+components:
+  schemas:
+    InvoiceList:
+      type: object
+      properties:
+        total:
+          type: string
+          example: "11"
