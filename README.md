@@ -26,6 +26,19 @@ Outil de Facturation
 * SIREN, SIRET, N.TVA
 * Adresse siège
 
+## Lancement en local
 
 ### MongoDB
 docker run -p 27017:27017 --name mfr-factu-mongo -d mongo --serviceExecutor adaptive
+ou 
+docker start mfr-factu-mongo
+
+### Backend
+cd server
+npm install
+npm start
+
+### Front
+cd client
+npm install
+npm start
