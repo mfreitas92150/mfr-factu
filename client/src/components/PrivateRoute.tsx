@@ -2,7 +2,7 @@ import React from "react";
 import * as API from "../utils/API";
 import { Route, Redirect } from "react-router-dom";
 
-export const PrivateRoute = ({ component: Component, ...rest }) => (
+export const PrivateRoute = ({ component: Component, ...rest }: any) => (
   <Route
     {...rest}
     render={(props) => {

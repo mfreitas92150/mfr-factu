@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Container, Form, Row, Col, Button } from "react-bootstrap";
-import axios from "axios";
+import * as API from "../utils/API";
+import { useHistory } from "react-router-dom";
 
 export default function Signup() {
+  const history = useHistory();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    setError(null);
+    setError("");
   }, [email, password]);
 
   const errorAlert = error ? <span>{error}</span> : null;
@@ -25,28 +27,18 @@ export default function Signup() {
           <Col>{errorAlert}</Col>
         </Row>
         <Form
-          onSubmit={(e) => {
+          onSubmit={async (e: any) => {
             e.preventDefault();
-            axios
-              .post(
-                `http://localhost:8800/user/signup`,
-                { email, password },
-                {
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                }
-              )
-              .then((response) => {
-                window.location = "/";
-              })
-              .catch((error) => {
-                console.info(error);
-                setError("Création du compte en erreur.Le compte existe déjà");
-              });
+            try {
+              await API.signup(email, password);
+              history.push("/");
+            } catch (err) {
+              console.info(error);
+              setError("Création du compte en erreur.Le compte existe déjà");
+            }
           }}
           onReset={() => {
-            window.location = "/";
+            history.push("/");
           }}
         >
           <Row>

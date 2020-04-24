@@ -4,18 +4,15 @@ import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import { PrivateRoute } from "./components/PrivateRoute";
-import "./App.css";
 
 export default function App() {
   return (
-    <div className="App">
-      <div className="App-content">
-        <Switch>
-          <Route exact path="/login" component={Login} />
-          <Route exact path="/signup" component={Signup} />
-          <PrivateRoute path="/" component={Dashboard} /> }
-        </Switch>
-      </div>
+    <div>
+      <Switch>
+        <Route exact path="/login" component={Login} />
+        <Route exact path="/signup" component={Signup} />
+        <PrivateRoute path="/" component={Dashboard} /> }
+      </Switch>
     </div>
   );
 }

@@ -14,10 +14,12 @@ export default function Login() {
   }, [email, password]);
 
   const errorAlert = error ? <span>{error}</span> : null;
+
   if (API.isAuth()) {
     history.push("/");
     return null;
   }
+
   return (
     <div className="Login">
       <Container>
@@ -34,6 +36,7 @@ export default function Login() {
             e.preventDefault();
             try {
               await API.login(email, password);
+              history.push("/");
             } catch (err) {
               console.info(error);
               setError("Compte inconnu ou mot de passe erroné !");

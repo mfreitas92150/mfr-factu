@@ -5,18 +5,18 @@ const axiosJsonParams = {
     "Content-Type": "application/json",
   },
 };
-const burl = "http://localhost:8800";
 
 export const login = async (email: string, password: string) => {
   const response = await axios.post(
-    `${burl}/user/login`,
+    `/user/login`,
     { email, password },
     axiosJsonParams
   );
   localStorage.setItem("token", response.data.token);
-  // TODO fix! we must not manipulate window when using a router
-  // @ts-ignore
-  window.location = "/";
+};
+
+export const signup = async (email: string, password: string) => {
+  await axios.post(`/user/signup`, { email, password }, axiosJsonParams);
 };
 
 export const isAuth = () => {
