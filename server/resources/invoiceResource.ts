@@ -28,9 +28,11 @@ async function _findAll(req: Request, res: Response) {
 async function _save(req: Request, res: Response) {
   try {
     const date = new Date();
-    const invoice = new Invoice(
-      Object.assign(req.body, { createdAt: date, updatedAt: date })
-    );
+    const invoice = new Invoice({
+      ...req.body,
+      createdAt: date,
+      updatedAt: date,
+    });
     const invoiceSaved = await invoice.save(invoice);
 
     return res.status(200).json({ id: invoiceSaved.id });
@@ -78,12 +80,11 @@ async function _delete(req: Request, res: Response) {
     const date = new Date();
     const invoiceParam = req.body;
 
-
     if (!req.params.id) {
-        return res.status(401).json({
-          error: `Missing param id`,
-        });
-      }
+      return res.status(401).json({
+        error: `Missing param id`,
+      });
+    }
 
     const invoice = await Invoice.findOne({ _id: req.params.id });
 
@@ -95,7 +96,7 @@ async function _delete(req: Request, res: Response) {
 
     await invoice.deleteOne({ _id: req.params.id });
 
-    return res.status(200).json({ id: req.params.id});
+    return res.status(200).json({ id: req.params.id });
   } catch (error) {
     console.info(error);
     return res.status(500).json({
