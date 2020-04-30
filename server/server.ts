@@ -5,6 +5,7 @@ import * as mongoose from "mongoose";
 import { invoiceRoutes } from "./resources/invoiceResource";
 import { clientRoutes } from "./resources/clientResource";
 import { productRoutes } from "./resources/productResource";
+import init from './init';
 
 const app = express();
 
@@ -12,6 +13,7 @@ mongoose
   .connect("mongodb://localhost/db")
   .then(() => {
     console.log("Connected to mongoDB");
+    init();
   })
   .catch(e => {
     console.log("Error while DB connecting");
