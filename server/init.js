@@ -5,17 +5,17 @@ const random = require("random");
 const url = "http://localhost:4201";
 
 async function createUser() {
-  const response = await axios.post(`${urk}/users/`, {email: "dummy@test.fr"});
-  console.info(`User created ${response.body}`);
-  return response.body;
+  return await axios.post(`${url}/users/`, {email: "dummy@test.fr"});
 }
 
 async function createInvoice(userId, invoice){
-  const response = await axios.post(`${urk}/users/`, {email: "dummy@test.fr"});
+  const response = await axios.post(`${url}/users/${userId}/invoices`, invoice);
   console.info(`Invoice created ${response.body}`);
 }
 
 const userId = createUser();
+
+console.info(`User created with id: ${userId}`)
 
 for (var i = 6; i < 13; i++) {
   var invoiceCount = random.int(1, 2);
