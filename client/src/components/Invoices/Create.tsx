@@ -1,29 +1,38 @@
-import React, { useRef } from "react";
-import { Link, useHistory } from "react-router-dom";
+import React from "react";
+import { useHistory } from "react-router-dom";
+import { Container } from "react-bootstrap";
+import * as api from "../../utils/invoices";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 
 const Invoices = () => {
-  const inputName = useRef(null);
   const history = useHistory();
 
-  const create = async () => {
-    // @ts-ignore
-    const name = inputName.current.value;
-    const res = await fetch("/api/invoices", {
-      method: "post",
-      body: JSON.stringify({ name }),
-      headers: { "Content-Type": "application/json" },
-    });
+  const init = {
+    name: "",
+    clientId: "",
+  };
+  const submit = async (values: any) => {
+    await api.create(values);
     history.push("/invoices/list");
   };
 
   return (
-    <div>
-      <Link to="/invoices/list">list</Link>
-      <h1>Create an invoice</h1>
-      Name <input ref={inputName} type="text"></input>
-      <br />
-      <button onClick={create}>Create</button>
-    </div>
+    <Container>
+      <h1>Créer une facture</h1>
+      <Formik initialValues={init} onSubmit={submit}>
+        <Form>
+          <label htmlFor="name">Name</label>
+          <Field name="name" type="text" />
+          <ErrorMessage name="name" />
+          <br />
+          <label htmlFor="clientId">Client</label>
+          <Field name="clientId" type="text" />
+          <ErrorMessage name="clientId" />
+          <br />
+          <button type="submit">Submit</button>
+        </Form>
+      </Formik>
+    </Container>
   );
 };
 

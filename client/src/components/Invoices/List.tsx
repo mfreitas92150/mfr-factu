@@ -1,50 +1,56 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-
-interface Invoice {
-  _id: string; // TODO remove implementation leak
-  name: String;
-}
+import { Container, Alert } from "react-bootstrap";
+import * as api from "../../utils/invoices";
+import IconTool from "../IconTool";
 
 const Invoices = () => {
-  const [i, setI] = useState<Invoice[]>([]);
-  const [dirty, setDirty] = useState(true);
+  const [invoices, setInvoices] = useState<api.Invoice[]>([]);
+  const [isDirty, setDirty] = useState(true);
 
   useEffect(() => {
     const get = async () => {
-      const res = await fetch("/api/invoices");
-      const json = await res.json();
-      console.log(json);
-      setI(json);
+      const res = await api.list();
+      console.log(`Fetched ${res.length} invoices`);
+      setInvoices(res);
       setDirty(false);
     };
-    if (dirty) get();
-  }, [dirty]);
+    if (isDirty) get();
+  }, [isDirty]);
 
-  const htmlInvoices = i.map((invoice, i) => (
-    <div key={i}>
-      <b>Invoice {invoice.name}</b>{" "}
-      <button
-        onClick={async () => {
-          const res = await fetch(`/api/invoices/${invoice._id}`, {
-            method: "delete",
-          });
-          setDirty(true);
-        }}
-      >
-        delete
-      </button>
-      <br />
-      {JSON.stringify(invoice)}
-    </div>
-  ));
+  const htmlInvoices = invoices.length ? (
+    invoices.map((invoice) => (
+      <div key={invoice.id}>
+        <b>Invoice {invoice.name}</b>{" "}
+        <IconTool
+          className="ml-3"
+          tooltip="Supprimer cette facture"
+          onClick={async () => {
+            await api.remove(invoice.id);
+            setDirty(true);
+          }}
+          icon="trash"
+        />
+        <br />
+        {JSON.stringify(invoice)}
+      </div>
+    ))
+  ) : (
+    <Alert variant="warning">Pas de facture pour le moment</Alert>
+  );
 
   return (
-    <div>
-      <Link to="/invoices/create">create</Link>
-      <h1>Invoices</h1>
+    <Container>
+      <h1>
+        Liste des factures
+        <IconTool
+          className="ml-3"
+          tooltip="Créer une facture"
+          link="/invoices/create"
+          icon="plus"
+        />
+      </h1>
       {htmlInvoices}
-    </div>
+    </Container>
   );
 };
 
