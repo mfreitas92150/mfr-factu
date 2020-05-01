@@ -14,7 +14,7 @@ mongoose
   .then(() => {
     console.log("Connected to mongoDB");
   })
-  .catch(e => {
+  .catch((e) => {
     console.log("Error while DB connecting");
     console.log(e);
   });
@@ -32,12 +32,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   }
 });
 
-
-app.use("/api/users/", userRoutes);
-app.use("/api/users/", invoiceRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/users", invoiceRoutes);
 app.use("/api/clients", clientRoutes);
 app.use("/api/products", productRoutes);
-
 
 app.listen(4201, "127.0.0.1", function () {
   console.log("Server now listening on 4201");

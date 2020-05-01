@@ -3,26 +3,32 @@ export interface NewInvoice {
 }
 
 export interface Invoice extends NewInvoice {
-  id: string;
+  invoiceId: string;
 }
 
+const getUserId = async () => {
+  // arbitrarily takes first user
+  const resU = await fetch("/api/users");
+  const users = await resU.json();
+  const userId = users[0].userId;
+  return userId;
+};
+
 export const remove = async (id: string) => {
-  await fetch(`/api/invoices/${id}`, { method: "delete" });
+  const userId = await getUserId();
+  await fetch(`/api/users/${userId}/invoices/${id}`, { method: "delete" });
 };
 
 export const list = async (): Promise<Invoice[]> => {
-  const res = await fetch("/api/invoices");
+  const userId = await getUserId();
+  const res = await fetch(`/api/users/${userId}/invoices`);
   const json = await res.json();
-  return json.map((raw: any) => {
-    raw.id = raw._id;
-    delete raw._id;
-    delete raw.__v;
-    return raw;
-  });
+  return json.map((raw: any) => raw);
 };
 
 export const create = async (invoice: NewInvoice) => {
-  await fetch("/api/invoices", {
+  const userId = await getUserId();
+  await fetch(`/api/users/${userId}/invoices`, {
     method: "post",
     body: JSON.stringify(invoice),
     headers: { "Content-Type": "application/json" },

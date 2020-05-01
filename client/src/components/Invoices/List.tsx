@@ -19,13 +19,13 @@ const Invoices = () => {
 
   const htmlInvoices = invoices.length ? (
     invoices.map((invoice) => (
-      <div key={invoice.id}>
+      <div key={invoice.invoiceId}>
         <b>Invoice {invoice.name}</b>{" "}
         <IconTool
           className="ml-3"
           tooltip="Supprimer cette facture"
           onClick={async () => {
-            await api.remove(invoice.id);
+            await api.remove(invoice.invoiceId);
             setDirty(true);
           }}
           icon="trash"
