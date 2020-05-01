@@ -22,7 +22,10 @@
     "tslint": "^6.1.2",
     "mongoose-paginate": "^5.0.3",
     "moment": "^2.24.0",
-    "random": "^2.2.0"
+    "random": "^2.2.0",
+    "axios": "^0.19.2",
+    "uuid": "^8.0.0",
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
     "nodemon": "^2.0.3",

@@ -1,11 +1,19 @@
 import * as mongoose from "mongoose";
 
 const invoice = mongoose.Schema({
-  name: {
+  invoiceId: {
     type: String,
     unique: true,
     required: true,
   },
+  userId:{
+    type: String,
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+  },  
   createdAt: {
     type: Date,
     required: true,
@@ -16,7 +24,6 @@ const invoice = mongoose.Schema({
   },
   validatedAt: {
     type: Date,
-    required: false,
   },
   clientId: {
     type: String

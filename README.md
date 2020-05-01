@@ -32,6 +32,8 @@ Outil de Facturation
 docker run -p 27017:27017 --name mfr-factu-mongo -d mongo --serviceExecutor adaptive
 ou 
 docker start mfr-factu-mongo
+ou 
+docker kill mfr-factu-mongo; docker rm mfr-factu-mongo;docker run -p 27017:27017 --name mfr-factu-mongo -d mongo --serviceExecutor adaptive
 
 ### Backend
 cd server

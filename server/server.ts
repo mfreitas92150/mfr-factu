@@ -5,7 +5,7 @@ import * as mongoose from "mongoose";
 import { invoiceRoutes } from "./resources/invoiceResource";
 import { clientRoutes } from "./resources/clientResource";
 import { productRoutes } from "./resources/productResource";
-import init from './init';
+import { userRoutes } from "./resources/userResouce";
 
 const app = express();
 
@@ -13,7 +13,6 @@ mongoose
   .connect("mongodb://localhost/db")
   .then(() => {
     console.log("Connected to mongoDB");
-    init();
   })
   .catch(e => {
     console.log("Error while DB connecting");
@@ -33,10 +32,12 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   }
 });
 
-// A default hello word route
-app.use("/api/invoices", invoiceRoutes);
+
+app.use("/api/users/", userRoutes);
+app.use("/api/users/", invoiceRoutes);
 app.use("/api/clients", clientRoutes);
 app.use("/api/products", productRoutes);
+
 
 app.listen(4201, "127.0.0.1", function () {
   console.log("Server now listening on 4201");
