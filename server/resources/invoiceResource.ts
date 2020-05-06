@@ -54,7 +54,7 @@ async function _statMonthly(req: Request, res: Response) {
     },
   });
 
-  const stats = _statByMounth(invoices, userId);
+  const stats = await _statByMounth(invoices, userId);
   // Ici, chaque entré devrait avoir des champs InvoiceStat.InvoiceStatDiff mais je ne les retrouve pas dans le retour de l'api (tester via postman)
   console.info(stats);
   return res.status(200).json(stats);
@@ -236,13 +236,20 @@ function mapInvoice(invoice: any) {
 }
 
 /**
- * Regroupe les factures par mois. 
- * @param invoices 
- * @param userId 
+ * Regroupe les factures par mois.
+ * @param invoices
+ * @param userId
  */
-function _statByMounth(invoices: Array<IInvoice>, userId: string) {
+async function _statByMounth(invoices: Array<IInvoice>, userId: string) {
   const statByMonth = {};
-  _.map(invoices, async (invoice: IInvoice) => {
+  /*
+    si le await est dans un for, l'exécution est linéaire (chaque await 'bloque' le for)
+    si on veut faire du concurrent, il faut écrire
+      await Promise.all(
+        invoices.map(async invoice => { ...code asynchrone avec des await... })
+      )
+  */
+  for (const invoice of invoices) {
     // Créer la clé année / mois
     const date = moment(invoice.validatedAt).format("YYYYMM");
     // Calcul la somme Hors Taxe de la facture à partir des produits
@@ -257,7 +264,7 @@ function _statByMounth(invoices: Array<IInvoice>, userId: string) {
     invoiceState.count = invoiceState.count + 1;
     invoiceState.ht = invoiceState.ht + ht;
     invoiceState.diffs.push(htMinus1);
-  });
+  }
   return statByMonth;
 }
 
@@ -272,10 +279,10 @@ function _getHtFromInvoice(invoice: IInvoice) {
 }
 
 /**
- * Récupère la somme HT du cumul des factures du mois de l'année antérieur 
+ * Récupère la somme HT du cumul des factures du mois de l'année antérieur
  * @param mDate YYYYDD => année mois de base
  * @param sub => antéorité du mois rechercher. Si mDate: 202001 et sub: 2, on recherche 201801
- * @param userId 
+ * @param userId
  */
 async function _getHtForMount(mDate: string, sub: number, userId: string) {
   const m = moment(mDate, "YYYYMM").subtract(sub, "years");
