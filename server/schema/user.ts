@@ -1,4 +1,11 @@
 import * as mongoose from "mongoose";
+import * as _ from "lodash";
+
+export class IUser extends mongoose.Document {
+  userId: String;
+  email: String;
+  createdAt: Date;
+}
 
 const user = mongoose.Schema({
   userId: {
@@ -14,8 +21,7 @@ const user = mongoose.Schema({
   createdAt: {
     type: Date,
     required: true,
-  }
+  },
 });
 
-export default mongoose.model("User", user);
-  
+export default mongoose.model<IUser>("User", user);

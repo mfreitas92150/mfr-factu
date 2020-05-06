@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import * as express from "express";
 import { v4 as uuidv4 } from "uuid";
 import * as _ from "lodash";
-import User from "../schema/user";
+import User, { IUser } from "../schema/user";
 
 export const userRoutes = express.Router();
 
@@ -13,21 +13,21 @@ userRoutes.delete("/:id", _delete);
 
 async function _findAll(req: Request, res: Response) {
   try {
-    const users = await User.find({});
+    const users = await User.find<IUser>({});
     if (!users)
       return res.status(401).json({
         text: "???",
       });
-    return res
-      .status(200)
-      .json(
-        _.map(users, (user) => _.pick(user, ["userId", "email", "createdAt"]))
-      );
+    return res.status(200).json(_.map(users, (user: IUser) => _mapUser(user)));
   } catch (error) {
     return res.status(500).json({
       error,
     });
   }
+}
+
+function _mapUser(user: IUser) {
+  return _.pick(user, ["userId", "email", "createdAt"]);
 }
 
 async function _findById(req: Request, res: Response) {
@@ -57,7 +57,7 @@ async function _save(req: Request, res: Response) {
     });
     const invoiceSaved = await user.save();
 
-    return res.status(200).json({ id: userId });
+    return res.status(200).json(userId);
   } catch (error) {
     console.info(error);
     return res.status(500).json({

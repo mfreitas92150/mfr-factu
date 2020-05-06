@@ -6,7 +6,7 @@ const url = "http://localhost:4201/api";
 
 async function createUser() {
   const res = await axios.post(`${url}/users/`, { email: "dummy@test.fr" });
-  return res.data.id;
+  return res.data;
 }
 
 const users = {};
@@ -20,22 +20,26 @@ users.delete = async (id) => {
 };
 users.deleteAll = async () => {
   const list = await users.list();
+  console.info("list: " + list);
   for (let user of list) {
     await users.delete(user.userId);
   }
 };
 
 async function createInvoice(userId, invoice) {
-  const response = await axios.post(`${url}/users/${userId}/invoices`, invoice);
-  console.info(`Invoice created ${response.body}`);
+  const response = await axios.post(`${url}/invoices`, invoice, {
+    headers: { "userId": userId },
+  });
+  console.info(`Invoice created ${response.data}`);
 }
 
 function mockInvoice(index, subIndex, year) {
-  var date = moment(`01/${index}/${year}`, "DD/MM/YYYY").toDate();
+  var date = moment(`01/${index}/${year}`, "DD/MM/YYYY").set({
+    hour: 12,
+    minute: 0
+  }).toDate();
   return {
     name: `invoice-${year}-${index}-${subIndex}`,
-    createdAt: date,
-    updatedAt: date,
     validatedAt: date,
     products: mockProducts(),
   };
@@ -48,7 +52,7 @@ function mockProducts() {
     products.push({
       name: "Product",
       quantity: random.int(1, 20),
-      ut: 400,
+      cost: 400,
       tva: 20,
     });
   }
@@ -58,9 +62,7 @@ function mockProducts() {
 const wait = (time) => new Promise((accept) => setTimeout(accept, time));
 
 const main = async () => {
-  await users.deleteAll();
-  await wait(1000);
-  console.log("Users after deletion", await users.list());
+  console.info(await users.list());
 
   const userId = await createUser();
 

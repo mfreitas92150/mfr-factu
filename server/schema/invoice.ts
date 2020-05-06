@@ -1,5 +1,23 @@
 import * as mongoose from "mongoose";
 
+export interface IProduct {
+  name: string,
+  quantity: number,
+  cost: number,
+  tax: Number
+}
+
+export interface IInvoice extends mongoose.Document {
+  invoiceId: string,
+  userId: string,
+  name: string,  
+  createdAt: Date,
+  updatedAt: Date,
+  validatedAt: Date,
+  clientId: string,
+  products: Array<IProduct>
+}
+
 const invoice = mongoose.Schema({
   invoiceId: {
     type: String,
@@ -33,5 +51,5 @@ const invoice = mongoose.Schema({
   }
 });
 
-export default mongoose.model("Invoice", invoice);
+export default mongoose.model<IInvoice>("Invoice", invoice);
   

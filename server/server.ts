@@ -33,7 +33,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use("/api/users", userRoutes);
-app.use("/api/users", invoiceRoutes);
+app.use("/api/invoices", invoiceRoutes);
 app.use("/api/clients", clientRoutes);
 app.use("/api/products", productRoutes);
 
