@@ -54,7 +54,10 @@ async function _statMonthly(req: Request, res: Response) {
     },
   });
 
-  return res.status(200).json(_statByMounth(invoices, userId));
+  const stats = _statByMounth(invoices, userId);
+  // Ici, chaque entré devrait avoir des champs InvoiceStat.InvoiceStatDiff mais je ne les retrouve pas dans le retour de l'api (tester via postman)
+  console.info(stats);
+  return res.status(200).json(stats);
 }
 
 async function _findAll(req: Request, res: Response) {
