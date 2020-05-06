@@ -16,21 +16,24 @@ const getUserId = async () => {
 
 export const remove = async (id: string) => {
   const userId = await getUserId();
-  await fetch(`/api/users/${userId}/invoices/${id}`, { method: "delete" });
+  await fetch(`/api/invoices/${id}`, {
+    method: "delete",
+    headers: { userId },
+  });
 };
 
 export const list = async (): Promise<Invoice[]> => {
   const userId = await getUserId();
-  const res = await fetch(`/api/users/${userId}/invoices`);
+  const res = await fetch(`/api/invoices`, { headers: { userId } });
   const json = await res.json();
   return json.map((raw: any) => raw);
 };
 
 export const create = async (invoice: NewInvoice) => {
   const userId = await getUserId();
-  await fetch(`/api/users/${userId}/invoices`, {
+  await fetch(`/api/invoices`, {
     method: "post",
     body: JSON.stringify(invoice),
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", userId },
   });
 };

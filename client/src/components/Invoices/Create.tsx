@@ -11,6 +11,7 @@ const Invoices = () => {
     name: "",
     clientId: "",
   };
+
   const submit = async (values: any) => {
     await api.create(values);
     history.push("/invoices/list");
