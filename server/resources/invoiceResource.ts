@@ -4,8 +4,8 @@ import * as _ from "lodash";
 import * as moment from "moment";
 import { v4 as uuidv4 } from "uuid";
 import User from "../schema/user";
-import Invoice, { IInvoice, IProduct } from "../schema/invoice";
 import user from "../schema/user";
+import Invoice from "../business/invoice";
 
 export const invoiceRoutes = express.Router();
 
@@ -46,7 +46,7 @@ async function _statMonthly(req: Request, res: Response) {
     .endOf("month")
     .toDate();
 
-  const invoices = await Invoice.find<IInvoice>({
+  const invoices = await Invoice.find({
     userId: userId,
     validatedAt: {
       $gte: startDate,
@@ -54,7 +54,7 @@ async function _statMonthly(req: Request, res: Response) {
     },
   });
 
-  const stats = await _statByMounth(invoices, userId);
+  const stats = await _statByMonth(invoices, userId);
   // Ici, chaque entré devrait avoir des champs InvoiceStat.InvoiceStatDiff mais je ne les retrouve pas dans le retour de l'api (tester via postman)
   console.info(stats);
   return res.status(200).json(stats);
@@ -62,12 +62,12 @@ async function _statMonthly(req: Request, res: Response) {
 
 async function _findAll(req: Request, res: Response) {
   try {
-    const invoices = await Invoice.find<IInvoice>({});
+    const invoices = await Invoice.find({});
     if (!invoices)
       return res.status(401).json({
         text: "Invoice pas bon",
       });
-    return res.status(200).json(_.map(invoices, mapInvoice));
+    return res.status(200).json(Invoice.toClient(invoices));
   } catch (error) {
     return res.status(500).json({
       error,
@@ -83,14 +83,14 @@ async function _findAllByUser(req: Request, res: Response) {
     });
   }
   try {
-    const invoices = await Invoice.find<IInvoice>({
+    const invoices = await Invoice.find({
       userId: req.header("userId"),
     });
     if (!invoices)
       return res.status(401).json({
         text: "Invoice pas bon",
       });
-    return res.status(200).json(_.map(invoices, mapInvoice));
+    return res.status(200).json(Invoice.toClient(invoices));
   } catch (error) {
     return res.status(500).json({
       error,
@@ -123,7 +123,7 @@ async function _findById(req: Request, res: Response) {
       return res.status(401).json({
         text: `Unkonwn invoice ${req.params.id} for user ${userId}`,
       });
-    return res.status(200).json(mapInvoice(invoice));
+    return res.status(200).json(invoice.toClient());
   } catch (error) {
     return res.status(500).json({
       error,
@@ -150,7 +150,8 @@ async function _save(req: Request, res: Response) {
     }
 
     const date = moment.now();
-    const invoice = new Invoice({
+
+    const invoice = await Invoice.create({
       ...req.body,
       createdAt: date,
       updatedAt: date,
@@ -158,9 +159,7 @@ async function _save(req: Request, res: Response) {
       userId: req.header("userId"),
     });
 
-    await invoice.save();
-
-    return res.status(200).json(invoice.invoiceId);
+    return res.status(200).json(invoice.id);
   } catch (error) {
     console.info(error);
     return res.status(500).json({
@@ -189,11 +188,10 @@ async function _update(req: Request, res: Response) {
         text: `Unkonwn invoice ${req.params.id}`,
       });
     }
-    await invoice.save(
-      new Invoice(Object.assign(invoice, invoiceParam, { updatedAt: date }))
-    );
 
-    return res.status(200).json(invoice.invoiceId);
+    await invoice.update(invoiceParam);
+
+    return res.status(200).json(invoice.id);
   } catch (error) {
     console.info(error);
     return res.status(500).json({
@@ -210,9 +208,7 @@ async function _delete(req: Request, res: Response) {
       });
     }
 
-    await Invoice.deleteOne({
-      invoiceId: req.params.id,
-    });
+    await Invoice.deleteById(req.params.id);
 
     return res.status(200).json(req.params.id);
   } catch (error) {
@@ -223,25 +219,13 @@ async function _delete(req: Request, res: Response) {
   }
 }
 
-function mapInvoice(invoice: any) {
-  return _.pick(invoice, [
-    "invoiceId",
-    "userId",
-    "name",
-    "createdAd",
-    "updatedAt",
-    "validatedAt",
-    "products",
-  ]);
-}
-
 /**
  * Regroupe les factures par mois.
  * @param invoices
  * @param userId
  */
-async function _statByMounth(invoices: Array<IInvoice>, userId: string) {
-  const statByMonth = {};
+async function _statByMonth(invoices: Invoice[], userId: string) {
+  const statByMonth: { [key: string]: InvoiceStat } = {};
   /*
     si le await est dans un for, l'exécution est linéaire (chaque await 'bloque' le for)
     si on veut faire du concurrent, il faut écrire
@@ -253,29 +237,19 @@ async function _statByMounth(invoices: Array<IInvoice>, userId: string) {
     // Créer la clé année / mois
     const date = moment(invoice.validatedAt).format("YYYYMM");
     // Calcul la somme Hors Taxe de la facture à partir des produits
-    const ht = _getHtFromInvoice(invoice);
+    const ht = invoice.total;
     // Si clé année / mois n'existe pas, on l'init
     if (!statByMonth[date]) {
-      statByMonth[date] = new InvoiceStat(0, 0, []);
+      statByMonth[date] = { count: 0, ht: 0, diffs: [] };
     }
     const invoiceState = statByMonth[date];
     const htMinus1 = await _getHtForMount(date, 1, userId);
 
-    invoiceState.count = invoiceState.count + 1;
-    invoiceState.ht = invoiceState.ht + ht;
+    invoiceState.count++;
+    invoiceState.ht += ht;
     invoiceState.diffs.push(htMinus1);
   }
   return statByMonth;
-}
-
-function _getHtFromInvoice(invoice: IInvoice) {
-  return _.reduce(
-    invoice.products,
-    function (sum: number, product: IProduct) {
-      return sum + product.quantity * product.cost;
-    },
-    0
-  );
 }
 
 /**
@@ -288,41 +262,26 @@ async function _getHtForMount(mDate: string, sub: number, userId: string) {
   const m = moment(mDate, "YYYYMM").subtract(sub, "years");
   const startDate = m.startOf("month").toDate();
   const endDate = m.endOf("month").toDate();
-  const invoices = await Invoice.find<IInvoice>({
+  const invoices = await Invoice.find({
     userId: userId,
     validatedAt: {
       $gte: startDate,
       $lte: endDate,
     },
   });
-  return new InvoiceStatDiff(
-    m.format("YYYYMM"),
-    _.reduce(
-      invoices,
-      function (sum: number, invoice: IInvoice) {
-        return sum + _getHtFromInvoice(invoice);
-      },
-      0
-    )
-  );
+  return {
+    year: m.format("YYYYMM"),
+    diff: invoices.reduce((sum, invoice) => sum + invoice.total, 0),
+  };
 }
 
-class InvoiceStatDiff {
-  constructor(y: string, d: number) {
-    this.year = y;
-    this.diff = d;
-  }
+type InvoiceStatDiff = {
   year: string;
   diff: number;
-}
+};
 
-class InvoiceStat {
-  constructor(c: number, h: number, d: Array<InvoiceStatDiff>) {
-    this.count = c;
-    this.ht = h;
-    this.diffs = d;
-  }
+type InvoiceStat = {
   count: number;
   ht: number;
-  diffs: Array<InvoiceStatDiff>;
-}
+  diffs: InvoiceStatDiff[];
+};
