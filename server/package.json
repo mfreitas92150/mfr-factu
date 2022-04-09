@@ -21,7 +21,7 @@
     "ts-node-dev": "^1.0.0-pre.44",
     "tslint": "^6.1.2",
     "mongoose-paginate": "^5.0.3",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "random": "^2.2.0",
     "axios": "^0.19.2",
     "uuid": "^8.0.0",
